@@ -31,6 +31,11 @@ void SeamC::init(Mat&image,bool is_show)
     cshow = is_show;
     if(cshow) img.copyTo(cimg);
     seam_carving();
+
+    if(cshow)
+    {
+        imshow("carvd image", img);
+    }
 }
 
 void SeamC::get_rec()

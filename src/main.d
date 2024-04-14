@@ -71,4 +71,4 @@ src/main.o: src/main.cpp include/opencv2/core/core.hpp \
  include/opencv2/stitching/detail/blenders.hpp \
  include/opencv2/stitching/detail/camera.hpp include/opencv2/video.hpp \
  include/opencv2/video/tracking.hpp \
- include/opencv2/video/background_segm.hpp
+ include/opencv2/video/background_segm.hpp src/energy.h src/lsd.h

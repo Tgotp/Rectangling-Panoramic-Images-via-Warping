@@ -2,11 +2,11 @@
 
 #include "mesh_placement.h"
 
-Mat Mesh_Placement(Mat img,Mat image,vector<vector<pair<int,int> > > U,bool is_show)
+vector<vector<pair<int,int> > > Mesh_Placement(Mat img,Mat image,vector<vector<pair<int,int> > > U,bool is_show)
 {
     int n = img.rows,m = img.cols;
-    cout << n << ' ' << m << endl;
-    cout << image.rows << ' ' << image.cols << endl;
+    // cout << n << ' ' << m << endl;
+    // cout << image.rows << ' ' << image.cols << endl;
     vector<vector<pair<int,int> > > pos;
     vector<pair<int,int> > p;
     for(int i = 0;i <= 20; ++ i)
@@ -70,5 +70,5 @@ Mat Mesh_Placement(Mat img,Mat image,vector<vector<pair<int,int> > > U,bool is_s
         namedWindow("mesh_placement",WINDOW_FREERATIO);
         imshow("mesh_placement",imgshow);
     }
-    return imgshow;
+    return pos;
 }

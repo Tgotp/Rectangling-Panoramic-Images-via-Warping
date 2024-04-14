@@ -37,7 +37,7 @@
                 "command": "powershell",
                 "args": [
                     "-c",
-                    "'mingw32-make run'"
+                    "'mingw32-make run'",
                 ]
             },
             "linux": {
