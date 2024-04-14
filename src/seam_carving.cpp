@@ -14,11 +14,11 @@ int W[6] = {1,2,1,-1,-2,-1};
 Mat rimg,img,cimg,mask,maskx,masky;
 int n,m; bool cshow;
 vector<vector<double > > G,E,C;
-vector<vector<pair<int,int> > > U; // 位移场
+vector<vector<Point > > U; // 位移场
 
 Mat SeamC::get_seam_carving() { return img; }
 Mat SeamC::get_rec_img() { return rimg; }
-vector<vector<pair<int,int> > > SeamC::get_U() { return U; }
+vector<vector<Point > > SeamC::get_U() { return U; }
 void SeamC::init(Mat&image,bool is_show)
 {
     img = image;
@@ -88,9 +88,9 @@ void SeamC::get_rec()
     mask.copyTo(masky);
     get_gray();
 
-    vector<pair<int,int> > u;
+    vector<Point > u;
     for(int i = 0;i < m; ++ i)
-        u.push_back(make_pair(0,0));
+        u.push_back(Point(0,0));
     for(int i = 0;i < n; ++ i)
         U.push_back(u);
     
@@ -209,7 +209,7 @@ void SeamC::seam_carving()
             char key = waitKey(5);
             if(key == 'q') exit(0);
         }
-        if(y - x <= 2)break;
+        if(y - x <= 8)break;
     }while(true);
 }
 
@@ -354,7 +354,7 @@ void SeamC::seam_insert(int sx,int sy,int tx,int ty,int dir)
                 for(int i = 0 ;i < pos[j];++ i)
                 {
                     U[i][j + sy] = U[i + 1][j + sy];
-                    U[i][j + sy].first += 1;
+                    U[i][j + sy].x += 1;
                     img.at<Vec3b>(i,j + sy) = img.at<Vec3b>(i + 1,j + sy);
                     mask.at<uchar>(i,j + sy) = mask.at<uchar>(i + 1,j + sy);
                 }
@@ -363,7 +363,7 @@ void SeamC::seam_insert(int sx,int sy,int tx,int ty,int dir)
                 for(int i = n - 1 ;i > pos[j];-- i)
                 {
                     U[i][j + sy] = U[i - 1][j + sy];
-                    U[i][j + sy].first -= 1;
+                    U[i][j + sy].x -= 1;
                     img.at<Vec3b>(i,j + sy) = img.at<Vec3b>(i - 1,j + sy);
                     mask.at<uchar>(i,j + sy) = mask.at<uchar>(i - 1,j + sy);
                 }
@@ -417,7 +417,7 @@ void SeamC::seam_insert(int sx,int sy,int tx,int ty,int dir)
                 for(int j = 0;j < pos[i];++ j)
                 {
                     U[i + sx][j] = U[i + sx][j + 1];
-                    U[i + sx][j].second += 1;
+                    U[i + sx][j].y += 1;
                     img.at<Vec3b>(i + sx,j) = img.at<Vec3b>(i + sx,j + 1);
                     mask.at<uchar>(i + sx,j) = mask.at<uchar>(i + sx,j + 1);
                 }
@@ -426,7 +426,7 @@ void SeamC::seam_insert(int sx,int sy,int tx,int ty,int dir)
                 for(int j = m - 1;j > pos[i];-- j)
                 {
                     U[i + sx][j] = U[i + sx][j - 1];
-                    U[i + sx][j].second -= 1;
+                    U[i + sx][j].y -= 1;
                     img.at<Vec3b>(i + sx,j) = img.at<Vec3b>(i + sx,j - 1);
                     mask.at<uchar>(i + sx,j) = mask.at<uchar>(i + sx,j - 1);
                 }

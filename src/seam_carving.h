@@ -18,5 +18,5 @@ namespace SeamC
     void seam_insert(int sx,int sy,int tx,int ty,int dir);
     Mat get_seam_carving();
     Mat get_rec_img();
-    vector<vector<pair<int,int> > > get_U();
+    vector<vector<Point > > get_U();
 };

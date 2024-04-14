@@ -1,3 +1,4 @@
+#pragma once
 #include <cstdio>
 #include <iostream> 
 
@@ -6,16 +7,14 @@
 #include <opencv2/highgui/highgui.hpp> 
 #include <opencv2/opencv.hpp>
 #include "lsd.h"
-#include <Eigen>
+#include <Eigen/Eigen>
+#include "fline.h"
 using namespace std;
 using namespace cv;
 using namespace Eigen;
 
 namespace energy
 {
-    double* line_img(Mat img,bool is_show=1);
-    double* solve_img(Mat img);
-    double get_gray(Mat&img,int x,int y);
-
-    MatrixXf shape_energy(Mat img,vector<vector<pair<int,int> > > mesh);
+    double shape_energy(vector<vector<Point > > mesh,vector<vector<Point > > V);
+    double line_energy(vector<vector<vector<Line > > > mesh,vector<vector<Point > > V);
 }

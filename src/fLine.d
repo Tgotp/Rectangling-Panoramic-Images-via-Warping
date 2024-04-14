@@ -1,4 +1,4 @@
-src/main.o: src/main.cpp include/opencv2/core/core.hpp \
+src/fLine.o: src/fLine.cpp src/fLine.h include/opencv2/core/core.hpp \
  include/opencv2/core.hpp include/opencv2/core/cvdef.h \
  include/opencv2/core/version.hpp include/opencv2/core/hal/interface.h \
  include/opencv2/core/cv_cpu_dispatch.h include/opencv2/core/base.hpp \
@@ -15,14 +15,13 @@ src/main.o: src/main.cpp include/opencv2/core/core.hpp \
  include/opencv2/core/ovx.hpp include/opencv2/core/cvdef.h \
  include/opencv2/highgui/highgui.hpp include/opencv2/highgui.hpp \
  include/opencv2/imgcodecs.hpp include/opencv2/videoio.hpp \
- src/seam_carving.h src/mesh_placement.h include/opencv2/opencv.hpp \
- include/opencv2/calib3d.hpp include/opencv2/features2d.hpp \
- include/opencv2/flann/miniflann.hpp include/opencv2/flann/defines.h \
- include/opencv2/flann/config.h include/opencv2/core/affine.hpp \
- include/opencv2/dnn.hpp include/opencv2/dnn/dnn.hpp \
- include/opencv2/core/async.hpp include/opencv2/dnn/../dnn/version.hpp \
- include/opencv2/dnn/dict.hpp include/opencv2/dnn/layer.hpp \
- include/opencv2/dnn/dnn.inl.hpp \
+ include/opencv2/opencv.hpp include/opencv2/calib3d.hpp \
+ include/opencv2/features2d.hpp include/opencv2/flann/miniflann.hpp \
+ include/opencv2/flann/defines.h include/opencv2/flann/config.h \
+ include/opencv2/core/affine.hpp include/opencv2/dnn.hpp \
+ include/opencv2/dnn/dnn.hpp include/opencv2/core/async.hpp \
+ include/opencv2/dnn/../dnn/version.hpp include/opencv2/dnn/dict.hpp \
+ include/opencv2/dnn/layer.hpp include/opencv2/dnn/dnn.inl.hpp \
  include/opencv2/dnn/utils/inference_engine.hpp \
  include/opencv2/dnn/utils/../dnn.hpp include/opencv2/flann.hpp \
  include/opencv2/flann/flann_base.hpp include/opencv2/flann/general.h \
@@ -71,8 +70,8 @@ src/main.o: src/main.cpp include/opencv2/core/core.hpp \
  include/opencv2/stitching/detail/blenders.hpp \
  include/opencv2/stitching/detail/camera.hpp include/opencv2/video.hpp \
  include/opencv2/video/tracking.hpp \
- include/opencv2/video/background_segm.hpp src/energy.h src/lsd.h \
- include/Eigen/Eigen include/Eigen/Dense include/Eigen/Core \
+ include/opencv2/video/background_segm.hpp src/lsd.h include/Eigen/Eigen \
+ include/Eigen/Dense include/Eigen/Core \
  include/Eigen/src/Core/util/DisableStupidWarnings.h \
  include/Eigen/src/Core/util/Macros.h \
  include/Eigen/src/Core/util/ConfigureVectorization.h \
@@ -299,6 +298,4 @@ src/main.o: src/main.cpp include/opencv2/core/core.hpp \
  include/Eigen/src/IterativeLinearSolvers/LeastSquareConjugateGradient.h \
  include/Eigen/src/IterativeLinearSolvers/BiCGSTAB.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
- include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h \
- src/fline.h src/GLout.h include/glad/glad.h include/KHR/khrplatform.h \
- include/GLFW/glfw3.h src/shader_s.h src/stb_image.h
+ include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h
