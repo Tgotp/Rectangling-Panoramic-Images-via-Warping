@@ -2,7 +2,7 @@
 
 #include "mesh_placement.h"
 
-vector<vector<Point > > Mesh_Placement(Mat img,Mat image,vector<vector<Point > > U,bool is_show)
+vector<vector<Point > > Mesh_Placement(Mat img,Mat image,vector<vector<Point > > U,vector<vector<Point > >&P,bool is_show)
 {
     int n = img.rows,m = img.cols;
     // cout << n << ' ' << m << endl;
@@ -12,16 +12,17 @@ vector<vector<Point > > Mesh_Placement(Mat img,Mat image,vector<vector<Point > >
     for(int i = 0;i <= 20; ++ i)
     {
         p.clear();
-        int x = (n - 2) / 20.0 * i;
-        if(x > n - 2) x = n - 2;
+        int x = (n - 1) / 20.0 * i;
+        if(x > n - 1) x = n - 1;
         for(int j = 0;j <= 20; ++ j)
         {
-            int y = (m - 2) / 20.0 * j;
-            if(y > m - 2) y = m - 2;
+            int y = (m - 1) / 20.0 * j;
+            if(y > m - 1) y = m - 1;
             p.push_back(Point(x,y));
         }
         pos.push_back(p);
     }
+    P = pos;
     Mat imgshow;
     img.copyTo(imgshow);
     if(is_show)
@@ -72,4 +73,59 @@ vector<vector<Point > > Mesh_Placement(Mat img,Mat image,vector<vector<Point > >
         waitKey(0);
     }
     return pos;
+}
+
+VectorXd get_mesh_point(vector<vector<Point> >pos)
+{
+    VectorXd vec = VectorXd(21*21*2);
+    for(int i = 0;i <= 20;++ i)
+        for(int j = 0;j <= 20;++ j)
+            vec((i*21+j)*2) = pos[i][j].x,
+            vec((i*21+j)*2+1) = pos[i][j].y;
+    return vec;
+}
+
+vector<vector<Point > > vec_to_mesh(VectorXd V)
+{
+    vector<vector<Point > > mesh;
+    vector<Point > m;
+    for(int i = 0;i <= 20; ++ i)
+    {
+        m.clear();
+        for(int j = 0;j <= 20; ++ j)
+        {
+            cout << V((i*21+j)*2)<< ' ' << V((i*21+j)*2+1) << endl;
+            m.push_back(Point(V((i*21+j)*2),V((i*21+j)*2+1)));
+        }
+        mesh.push_back(m);
+    }
+    return mesh;
+}
+
+SparseMatrix<double> merge_matrix(SparseMatrix<double> a,SparseMatrix<double> b)
+{
+    SparseMatrix<double> mat1(a.rows()+b.rows(),a.cols());
+    for (int k=0; k<a.outerSize(); ++k)
+        for (SparseMatrix<double>::InnerIterator it(a,k); it; ++it)
+            mat1.insert(it.row(), it.col()) = it.value();
+
+    // 插入矩阵b的元素
+    for (int k=0; k<b.outerSize(); ++k)
+        for (SparseMatrix<double>::InnerIterator it(b,k); it; ++it)
+            mat1.insert(it.row() + a.rows(), it.col()) = it.value();
+	mat1.makeCompressed();
+    return mat1;
+}
+
+
+
+VectorXd merge_matrix(VectorXd a,VectorXd b)
+{
+    VectorXd mat1(a.rows()+b.rows());
+    for(int i = 0;i < a.rows();++ i)
+        mat1(i) = a(i);
+
+    for(int i = 0;i < b.rows();++ i)
+        mat1(i+a.rows()) = b(i);
+    return mat1;
 }

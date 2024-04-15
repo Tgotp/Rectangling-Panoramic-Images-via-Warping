@@ -12,5 +12,5 @@ using namespace std;
 using namespace cv;
 
 GLuint matToTexture(const cv::Mat &mat, GLenum minFilter, GLenum magFilter, GLenum wrapFilter) ;
-void GLout(Mat img,vector<vector<Point> > mesh);
+void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V);
 int GLinit();

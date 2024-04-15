@@ -99,7 +99,7 @@ Line getLine(Line x,vector<Point> p)
     exit(0);
 }
 
-vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,double *line,int n)
+vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,double *line,int n,int *line_n)
 {
     // cout << "init line" << endl;
     // lineImg = Mat::zeros(291,640,CV_8UC3);
@@ -107,6 +107,7 @@ vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,do
     vector<vector<Line > > Mesh_line;
     vector<Line > mesh_line;
     vector<Point > contours;
+    line_n = 0;
     for(int i = 0;i < 20; ++ i)
     {
         Mesh_line.clear();
@@ -130,11 +131,25 @@ vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,do
                 int z2 = pointPolygonTest(contours,ed,false);
 
                 if(z1 >= 0 && z2 >= 0)
+                {
+                    if(st == ed) continue;
+                    ++ line_n;
                     mesh_line.push_back(Line(st,ed,line[k*7+5]));
+                }
                 else if(z1 >= 0)
-                    mesh_line.push_back(getLine(Line(st,ed,line[k*7+5]),contours));
+                {
+                    Line a = getLine(Line(st,ed),contours);
+                    if(a.x == a.y) continue;
+                    ++ line_n;
+                    mesh_line.push_back(a);
+                }
                 else if(z2 >= 0)
-                    mesh_line.push_back(getLine(Line(ed,st,line[k*7+5]),contours));
+                {
+                    Line a = getLine(Line(ed,st),contours);
+                    if(a.x == a.y) continue;
+                    ++ line_n;
+                    mesh_line.push_back(a);
+                }
                 
             }
             Mesh_line.push_back(mesh_line);
@@ -174,22 +189,4 @@ double* fline::solve_img(Mat img)
             ans[i*m+j] = get_gray(img,i,j);
         }
     return ans;
-}
-
-
-double* fline::Line_rotate_count(int *num,vector<vector<vector<Line > > > mesh_line,int number)
-{
-    double *bins;
-    bins = new double[number];
-    for(int i = 0;i < 20;++ i)
-        for(int j = 0;j < 20;++ j)
-            for(auto k:mesh_line[i][j])
-            {
-                int pos = ceil(k.theta * 50);
-                bins[pos] += k.theta * PI;
-                num[pos] ++;
-            }
-    for(int i = 0;i < number; ++ i)
-        bins[i] /= num[i];
-    return bins;
 }

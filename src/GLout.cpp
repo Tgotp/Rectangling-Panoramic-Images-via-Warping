@@ -13,7 +13,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void GLout(Mat img,vector<vector<Point> > mesh)
+void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V)
 {
     int n = img.rows,m = img.cols;
     
@@ -57,27 +57,33 @@ void GLout(Mat img,vector<vector<Point> > mesh)
     // unsigned int indices[] = {  
     //     0, 1, 21, // first triangle
     // };
-    // unsigned int indices[] = {5,20,20*21+20};
+    // unsigned int indices[] = {1,20,20*21+20};
     
     float vertices[21 * 21 * 8];
     // float*vertices = new float[21 * 21 * 8];
     for(int i = 0;i <= 20; ++ i)
         for(int j = 0;j <= 20; ++ j)
         {
-            int x = (n - 2) / 20.0 * i;
-            if(x > n - 2) x = n - 2;
-            int y = (m - 2) / 20.0 * j;
-            if(y > m - 2) x = y - 2;
-            vertices[(i*21+j)*8] = (float)2.0*mesh[i][j].y/m - 1,
-            vertices[(i*21+j)*8 + 1] = (float)2.0*mesh[i][j].x/n - 1;
+            int ii = 20 - i,jj = j;
+            // int x = (n - 1) / 20.0 * ii;
+            // if(x > n - 1) x = n - 1;
+            // int y = (m - 1) / 20.0 * jj;
+            // if(y > m - 1) y = m - 1;
+            int x = V[ii][jj].x,y = V[ii][jj].y;
+            // vertices[(ii*21+jj)*8] = (float)2.0*mesh[20-ii][jj].y/m - 1,
+            // vertices[(ii*21+jj)*8 + 1] = (float)2.0*mesh[20-ii][jj].x/n - 1;
+            vertices[(i*21+j)*8] = (float)2.0*y/m - 1,
+            vertices[(i*21+j)*8 + 1] = (float)2.0*x/n - 1;
             vertices[(i*21+j)*8 + 2] = (float)0;
             
-            vertices[(i*21+j)*8 + 3] = (float)img.at<Vec3b>(mesh[i][j].x,mesh[i][j].y)[2]/255,
-            vertices[(i*21+j)*8 + 4] = (float)img.at<Vec3b>(mesh[i][j].x,mesh[i][j].y)[1]/255;
-            vertices[(i*21+j)*8 + 5] = (float)img.at<Vec3b>(mesh[i][j].x,mesh[i][j].y)[0]/255;
+            // vertices[(i*21+j)*8 + 3] = (float)img.at<Vec3b>(mesh[ii][jj].x,mesh[ii][jj].y)[2]/255.0,
+            // vertices[(i*21+j)*8 + 4] = (float)img.at<Vec3b>(mesh[ii][jj].x,mesh[ii][jj].y)[1]/255.0;
+            // vertices[(i*21+j)*8 + 5] = (float)img.at<Vec3b>(mesh[ii][jj].x,mesh[ii][jj].y)[0]/255.0;
             
-            vertices[(i*21+j)*8 + 6] = (float)1.0*y/m;
-            vertices[(i*21+j)*8 + 7] = (float)1.0*x/n;
+            // vertices[(ii*21+jj)*8 + 6] = (float)1.0*y/m;
+            // vertices[(ii*21+jj)*8 + 7] = (float)1.0*x/n;
+            vertices[(i*21+j)*8 + 6] = (float)1.0*mesh[i][j].y/m-1;
+            vertices[(i*21+j)*8 + 7] = (float)1.0*mesh[i][j].x/n-1;
         }
 
     // unsigned int*indices = new unsigned int[20*20*6];
@@ -143,9 +149,6 @@ void GLout(Mat img,vector<vector<Point> > mesh)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // OpenCV加载的图像通常是BGR格式，OpenGL需要的是RGB格式
-    // Mat tempMat;
-    // img.copyTo(tempMat);
-    // cvtColor(img, tempMat, COLOR_BGR2RGB);
     // cout << "buffer solve" << endl;
     // unsigned char* buffer = new unsigned char[n*m*3];
     // for(int i = 0;i < n; ++ i)
@@ -158,18 +161,23 @@ void GLout(Mat img,vector<vector<Point> > mesh)
     //     }
     // cout << "buffer solve out" << endl;
     // // // 将图像数据上传到纹理
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m, n, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    imwrite("output.bmp",img);
-    unsigned char *data = stbi_load("E:/c++/resizing/output.bmp",&width, &height, &nrChannels, 0);
+    Mat tempMat;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //宽为奇数
+    cvtColor(img, tempMat, COLOR_BGR2RGB);
+    flip(tempMat, tempMat, 0);
+    flip(tempMat, tempMat, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m, n, 0, GL_RGB, GL_UNSIGNED_BYTE, tempMat.data);
+
+    // int width, height, nrChannels;
+    // stbi_set_flip_vertically_on_load(true);
+    // unsigned char *data = stbi_load("E:/c++/resizing/output.bmp",&width, &height, &nrChannels, 0);
     // unsigned char *data = stbi_load("E:/c++/resizing/input/3_input.jpg",&width, &height, &nrChannels, 0);
     // // cout << width << ' ' << height << endl;
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    // if (data)
+    // {
+    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-    }
+    // }
     // else
     // {
     //     std::cout << "Failed to load texture" << std::endl;
@@ -196,7 +204,7 @@ void GLout(Mat img,vector<vector<Point> > mesh)
         // render container
         ourShader.use();
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6 * 400, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6*400 , GL_UNSIGNED_INT, 0);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

@@ -71,8 +71,8 @@ src/main.o: src/main.cpp include/opencv2/core/core.hpp \
  include/opencv2/stitching/detail/blenders.hpp \
  include/opencv2/stitching/detail/camera.hpp include/opencv2/video.hpp \
  include/opencv2/video/tracking.hpp \
- include/opencv2/video/background_segm.hpp src/energy.h src/lsd.h \
- include/Eigen/Eigen include/Eigen/Dense include/Eigen/Core \
+ include/opencv2/video/background_segm.hpp include/Eigen/Eigen \
+ include/Eigen/Dense include/Eigen/Core \
  include/Eigen/src/Core/util/DisableStupidWarnings.h \
  include/Eigen/src/Core/util/Macros.h \
  include/Eigen/src/Core/util/ConfigureVectorization.h \
@@ -300,5 +300,6 @@ src/main.o: src/main.cpp include/opencv2/core/core.hpp \
  include/Eigen/src/IterativeLinearSolvers/BiCGSTAB.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h \
- src/fline.h src/GLout.h include/glad/glad.h include/KHR/khrplatform.h \
- include/GLFW/glfw3.h src/shader_s.h src/stb_image.h
+ src/energy.h src/lsd.h src/fline.h src/GLout.h include/glad/glad.h \
+ include/KHR/khrplatform.h include/GLFW/glfw3.h src/shader_s.h \
+ src/stb_image.h
