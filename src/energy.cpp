@@ -1,5 +1,6 @@
 #include "energy.h"
 
+
 SparseMatrix<double> energy::shape_energy(vector<vector<Point > > mesh)
 {
     // double  = 0;
@@ -27,7 +28,7 @@ SparseMatrix<double> energy::shape_energy(vector<vector<Point > > mesh)
             Aq = (Aq * (Aq.transpose() * Aq).inverse() * Aq.transpose() - MatrixXd::Identity(8,8));
             Aq = Aq.transpose()*Aq;
             
-            // cout << i << ' ' << j << ' ' << (i*20+j)*8+7 << ' '<< 20*20*8<< endl;
+            // if(i == 0 && j == 0) output(Aq,"Aq");
             for(int x = 0;x < 8;++ x)
             {
                 shape_energy.insert((i*20+j)*8+x,(i*21+j)*2) = Aq(x,0);
@@ -40,18 +41,11 @@ SparseMatrix<double> energy::shape_energy(vector<vector<Point > > mesh)
                 shape_energy.insert((i*20+j)*8+x,((i+1)*21+j+1)*2+1) = Aq(x,7);
             }
             
-            // for(int x = 0;x < 8; ++ x)
-            //     shape_energy += es(x,0);
         }
     // cout << shape_energy << endl;
     cout << "solved shape energy" << endl;
 	shape_energy.makeCompressed();
     return shape_energy;
-}
-
-double energy::line_energy(vector<vector<vector<Line> > > mesh,vector<vector<Point > > V)
-{
-    return 0;
 }
 
 pair<SparseMatrix<double>,VectorXd > energy::bound_energy(vector<vector<Point > > mesh,double inf,int n,int m)
@@ -91,7 +85,7 @@ pair<SparseMatrix<double>,VectorXd > energy::bound_energy(vector<vector<Point > 
     return bound_energy;
 }
 
-double inverse_bilinear_interpolation(vector<Point> P[2],Line X)
+MatrixXd inverse_bilinear_interpolation_function(vector<Point> P[2],Line X)
 {
     MatrixXd A = MatrixXd::Zero(8,8);
     VectorXd B(8,1);
@@ -115,6 +109,12 @@ double inverse_bilinear_interpolation(vector<Point> P[2],Line X)
     // cout << "----B------"<<endl;
     // cout << B << endl;
     MatrixXd F = A.colPivHouseholderQr().solve(B);
+    return F;
+}
+
+double inverse_bilinear_interpolation(vector<Point> P[2],Line X)
+{
+    MatrixXd F = inverse_bilinear_interpolation_function(P,X);
     MatrixXd x(2,8),y(2,8);
     x << X.x.x,X.x.y,X.x.x*X.x.y,1,0,0,0,0,
         0,0,0,0,X.x.x,X.x.y,X.x.x*X.x.y,1;
@@ -158,3 +158,82 @@ double* energy::Line_rotate_count(int *num,vector<vector<vector<Line > > > mesh_
     return bins;
 }
 
+
+SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<Point > > mesh,double *bins,int num)
+{
+    cout << "line energy solve" << endl;
+    // cout << num << endl;
+    SparseMatrix<double> line_energy(4 * num,21 * 21 * 2);
+    vector<Point> p;
+    int cnt = 0; 
+    for(int i = 0;i < 20;++ i)
+    {
+        for(int j = 0;j < 20;++ j)
+        {
+            for(auto k : mesh_line[i][j])
+            {
+                // cout << "line energy i,j: " << i << ' ' << j << endl;
+                MatrixXd R(2,2);
+                R << cos(bins[k.pos]),-sin(bins[k.pos]),
+                        sin(bins[k.pos]),cos(bins[k.pos]);
+                cout << "line energy R: " << R.rows() << ' ' << R.cols() << endl;
+                output(R,"R");
+                // cout << "line e: " << k.x.x << ' ' << k.x.y << endl << k.y.x<< ' ' << k.y.y<< endl;
+                MatrixXd e(2,2);
+                e << k.x.x,k.x.y,
+                    k.y.x,k.y.y;
+                // cout << "line energy e: " << e.rows() << ' ' << e.cols() << endl;
+                MatrixXd C = R*e*(e.transpose()*e).inverse()*e.transpose()*R.transpose() - MatrixXd::Identity(2,2);
+                // cout << "line energy C: " << C.rows() << ' ' << C.cols() << endl;
+                output(C,"C");
+                
+
+                MatrixXd e1(2,4);
+                e1 << k.x.x,k.x.y,k.x.x*k.x.y,1,
+                      k.y.x,k.y.y,k.y.x*k.y.y,1;
+                
+                MatrixXd kx(4,4);
+                p.clear();
+                p.push_back(mesh[i][j]); p.push_back(mesh[i][j+1]);
+                p.push_back(mesh[i+1][j+1]); p.push_back(mesh[i+1][j]);
+                for(int t = 0;t < 4; ++ t)
+                {
+                    kx(t,0) = p[t].x;
+                    kx(t,1) = p[t].y;
+                    kx(t,2) = p[t].x * p[t].y;
+                    kx(t,3) = 1;
+                }
+                // cout << "line energy Kx: " << kx.rows() << ' ' << kx.cols() << endl;
+                output(kx,"kx");
+
+                MatrixXd K = e1*kx.inverse();
+                output(K,"K");
+
+                // cout << "line energy K: " << K.rows() << ' ' << K.cols() << endl;
+
+                MatrixXd out = K.transpose() * C.transpose() * C * K;
+                // cout << "line energy out: " << out.rows() << ' ' << out.cols() << endl;
+                output(out,"out");
+                for(int x = 0;x < 4;++ x)
+                {
+                    // cout << cnt << ' ' << 8 * num << endl;
+                    line_energy.insert(cnt,(i*20+j)*2) = out(x,0);
+                    line_energy.insert(cnt,(i*20+j+1)*2) = out(x,1);
+                    line_energy.insert(cnt,((i+1)*20+j+1)*2) = out(x,2);
+                    line_energy.insert(cnt,((i+1)*20+j)*2) = out(x,3);
+                    // cnt ++ ;
+
+                    line_energy.insert(cnt,(i*20+j)*2+1) = out(x,0);
+                    line_energy.insert(cnt,(i*20+j+1)*2+1) = out(x,1);
+                    line_energy.insert(cnt,((i+1)*20+j+1)*2+1) = out(x,2);
+                    line_energy.insert(cnt,((i+1)*20+j)*2+1) = out(x,3);
+                    cnt ++ ;
+                }
+                exit(0);
+            }
+        }
+    }
+    cout << "solved line energy " << endl;
+    line_energy.makeCompressed();
+    return line_energy;
+}

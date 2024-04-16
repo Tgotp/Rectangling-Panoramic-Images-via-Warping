@@ -107,7 +107,7 @@ vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,do
     vector<vector<Line > > Mesh_line;
     vector<Line > mesh_line;
     vector<Point > contours;
-    line_n = 0;
+    *line_n = 0;
     for(int i = 0;i < 20; ++ i)
     {
         Mesh_line.clear();
@@ -133,21 +133,21 @@ vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,do
                 if(z1 >= 0 && z2 >= 0)
                 {
                     if(st == ed) continue;
-                    ++ line_n;
+                    ++ (*line_n);
                     mesh_line.push_back(Line(st,ed,line[k*7+5]));
                 }
                 else if(z1 >= 0)
                 {
                     Line a = getLine(Line(st,ed),contours);
                     if(a.x == a.y) continue;
-                    ++ line_n;
+                    ++ (*line_n);
                     mesh_line.push_back(a);
                 }
                 else if(z2 >= 0)
                 {
                     Line a = getLine(Line(ed,st),contours);
                     if(a.x == a.y) continue;
-                    ++ line_n;
+                    ++ (*line_n);
                     mesh_line.push_back(a);
                 }
                 
@@ -156,6 +156,7 @@ vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,do
         }
         Mesh_Line.push_back(Mesh_line);
     }
+    // cout << *line_n << endl;
     // cout << "init line end" << endl;
     return Mesh_Line;
 }

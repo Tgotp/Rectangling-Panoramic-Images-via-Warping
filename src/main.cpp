@@ -10,6 +10,7 @@
 #include "fLine.h"
 #include <Eigen/Eigen>
 #include "GLout.h"
+#include "tool.h"
 using namespace cv;
 using namespace std;
 
@@ -38,40 +39,45 @@ int main()
     // fline::check_line(img,mesh_line);// op
 
     int M = 50; // 桶的数量
-    int*num;
-    num = new int[M];
+    int*num = new int[M];
     double*bins = energy::Line_rotate_count(num,mesh_line,mesh,pos,M);
 
-    double Nq = 20 * 20,lambdab = 1e6;;
-    SparseMatrix<double> ES = (1.0 / Nq) * energy::shape_energy(mesh);
+    double Nq = 20 * 20,lambdab = 1e5;
+    // SparseMatrix<double> ES = (1.0 / Nq) * energy::shape_energy(mesh);
+    SparseMatrix<double> ES = energy::shape_energy(mesh);
     pair<SparseMatrix<double>,MatrixXd > EB = energy::bound_energy(mesh,lambdab,img.rows,img.cols);
 
     // VectorXd V = get_mesh_point(pos);
 
     for(int iter = 0;iter < 1; ++ iter)
     {
-        
-        // double EL = (1.0 / Nl) * energy::line_energy(mesh_line,mesh);
-        
-        VectorXd B = VectorXd::Zero(20 * 20 * 8);
+        cout << 8*(*Nl) << endl;
+        SparseMatrix<double> EL = 100 * (1.0 / *Nl) * energy::line_energy(mesh_line,mesh,bins,*Nl);
+        cout << "line energy : "<< EL.rows() << " " << 8 * (*Nl) << endl;
+
+        VectorXd B = VectorXd::Zero(20 * 20 * 8 + 4 * (*Nl));
+        // VectorXd B = VectorXd::Zero(20 * 20 * 8);
         // cout << "qwq:" << endl << EB.second.rows() << ' ' << B.rows() << endl;
-        SparseMatrix<double> A = merge_matrix(ES,EB.first);
+        SparseMatrix<double> A = merge_matrix(merge_matrix(ES,EL),EB.first);
         // SparseMatrix<double> A = EB.first;A.makeCompressed();
+        // SparseMatrix<double> A = merge_matrix(ES,EB.first);A.makeCompressed();
+        // output(A,"Matrix A");
         B = merge_matrix(B,EB.second);
         // B = EB.second;
         
         SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> solver;
         solver.compute(A);
-        if(solver.info() != Success) {
-            std::cerr << "Decomposition failed!" << std::endl;
-            return -1;
-        }
         VectorXd V = solver.solve(B);
-        if(solver.info() != Success) {
-            std::cerr << "Solving failed!" << std::endl;
-            return -1;
-        }
+        SparseMatrix<double> Vq(21*21*2,1),Wq(B.rows(),1);
+        for(int i = 0;i < V.rows();++ i) Vq.insert(i,0) = V(i);
+        for(int i = 0;i < B.rows();++ i) Wq.insert(i,0) = B(i);
+        SparseMatrix<double> energy_cost;
+        energy_cost = (A * Vq) - Wq;
+        energy_cost = energy_cost.transpose()*energy_cost;
+        cout << "enery cost: " << endl << energy_cost.coeffRef(0,0) << endl;
+
         pos = vec_to_mesh(V);
+        double*bins = energy::Line_rotate_count(num,mesh_line,mesh,pos,M);
     }
     double st3 = clock();
     cout << fixed << setprecision(3)<< "energy cost time: " << (st3 - st2) / CLOCKS_PER_SEC << endl; 

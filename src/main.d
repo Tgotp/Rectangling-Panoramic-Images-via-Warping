@@ -300,6 +300,6 @@ src/main.o: src/main.cpp include/opencv2/core/core.hpp \
  include/Eigen/src/IterativeLinearSolvers/BiCGSTAB.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h \
- src/energy.h src/lsd.h src/fline.h src/GLout.h include/glad/glad.h \
- include/KHR/khrplatform.h include/GLFW/glfw3.h src/shader_s.h \
- src/stb_image.h
+ src/energy.h src/lsd.h src/fline.h src/tool.h src/GLout.h \
+ include/glad/glad.h include/KHR/khrplatform.h include/GLFW/glfw3.h \
+ src/shader_s.h src/stb_image.h

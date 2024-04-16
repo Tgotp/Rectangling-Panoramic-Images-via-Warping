@@ -1,4 +1,4 @@
-src/energy.o: src/energy.cpp src/energy.h include/opencv2/core/core.hpp \
+src/tool.o: src/tool.cpp src/tool.h include/opencv2/core/core.hpp \
  include/opencv2/core.hpp include/opencv2/core/cvdef.h \
  include/opencv2/core/version.hpp include/opencv2/core/hal/interface.h \
  include/opencv2/core/cv_cpu_dispatch.h include/opencv2/core/base.hpp \
@@ -299,4 +299,4 @@ src/energy.o: src/energy.cpp src/energy.h include/opencv2/core/core.hpp \
  include/Eigen/src/IterativeLinearSolvers/BiCGSTAB.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h \
- src/fline.h src/tool.h
+ src/fline.h

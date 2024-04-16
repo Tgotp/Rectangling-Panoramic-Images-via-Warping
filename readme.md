@@ -1,3 +1,5 @@
+# 数学推导
+
 多元二次函数表示为
 
 $f(x) = x^TAx+Bx+C$​
@@ -36,7 +38,7 @@ $C_j$ 是线段j旋转的矩阵，$e_{j}$为$j$在所属的桶内的输出的双
 
 $E_L(V) = \sum\frac{1}{N_L}e_{j}^T(C_j^TC_j)*e_{j}$
 
-e可以由V进行双线性插值得到$e_j=e_j'F_L$
+e可以由V进行双线性插值得到$e_j=\hat{e}'_jF_L$ (要修改一下)
 
 $$\begin{bmatrix}
 {\hat{x}_0}&{\hat{y}_0}&\hat{x}_0\hat{y}_0&1&0&0&0&0\\
@@ -44,9 +46,9 @@ $$\begin{bmatrix}
 {\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&\\{0}&{0}&0&0&{\hat{x}_3}&{\hat{y}_3}&\hat{x}_{3}\hat{y}_3&1\\
 \end{bmatrix}*F_L=\begin{bmatrix}x_0\\y_0\\\vdots\\{y_3}\end{bmatrix}$$
 
-令左边这个为$k$则$e_j=e_j'k^{-1}*V_q$
+令左边这个为$k_j$则$e_j=\hat{e}_j'k^{-1}*V_q$
 
-更进一步令$K_j=e_j'k_j^{-1}$
+更进一步令$K_j=\hat{e}_jk_j^{-1}$
 
 则$E_L(V)=\sum\frac{1}{N_L}*(K_jV_q)^T(C_j^TC_j)K_jV_q$​
 
