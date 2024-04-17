@@ -1,9 +1,5 @@
 
     
-#include <opencv2/core/core.hpp> 
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2\opencv.hpp>
-#include <iostream>
 #include "seam_carving.h"
 using namespace cv;
 using namespace std;
@@ -14,11 +10,11 @@ int W[6] = {1,2,1,-1,-2,-1};
 Mat rimg,img,cimg,mask,maskx,masky;
 int n,m; bool cshow;
 vector<vector<double > > G,E,C;
-vector<vector<Point > > U; // 位移场
+vector<vector<point > > U; // 位移场
 
 Mat SeamC::get_seam_carving() { return img; }
 Mat SeamC::get_rec_img() { return rimg; }
-vector<vector<Point > > SeamC::get_U() { return U; }
+vector<vector<point > > SeamC::get_U() { return U; }
 void SeamC::init(Mat&image,bool is_show)
 {
     img = image;
@@ -88,9 +84,9 @@ void SeamC::get_rec()
     mask.copyTo(masky);
     get_gray();
 
-    vector<Point > u;
+    vector<point > u;
     for(int i = 0;i < m; ++ i)
-        u.push_back(Point(0,0));
+        u.push_back(point(0,0));
     for(int i = 0;i < n; ++ i)
         U.push_back(u);
     
@@ -209,7 +205,7 @@ void SeamC::seam_carving()
             char key = waitKey(5);
             if(key == 'q') exit(0);
         }
-        if(y - x <= 8)break;
+        // if(y - x <= 2)break;
     }while(true);
 }
 
@@ -249,7 +245,7 @@ void SeamC::get_energy(int sx,int sy,int tx,int ty,bool dir)
                         ey += W[k] * G[Yx][Yy];
                 }
                 e.push_back(abs(ex) * 0.5 + abs(ey) * 0.5);
-            }else e.push_back(1e5);
+            }else e.push_back(mask.at<uchar>(i,j) ? 1e5 : 1e6);
         E.push_back(e);
     }
     // cout <<"solve_energy" << endl;

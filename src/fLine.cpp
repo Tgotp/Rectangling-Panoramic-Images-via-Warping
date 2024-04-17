@@ -1,19 +1,22 @@
 #include "fLine.h"
-double* fline::line_img(Mat img,int *n_line,bool is_show)
+double len_vector(point a) { return sqrt(a.x*a.x + a.y * a.y); }
+double* fline::line_img(Mat img,int *n_line,Mat&line_img,bool is_show)
 {
     int n = img.rows,m = img.cols;
     double *input_img = solve_img(img);
     double *out = lsd(n_line,input_img,m,n);
+    
+    img.copyTo(line_img);
+    // line_img = ~line_img;
+    int num = * n_line;
+    for(int i = 0;i < num;++ i)
+    {
+        // if(len_vector(point(out[i*7],out[i*7 + 1]) - point(out[i*7 + 2],out[i*7 + 3])) < 100) continue;
+        // cout << "Limited line"<< out[i*7]<< ' ' << out[i*7+1] << ' ' << out[i*7+2] << ' ' << out[i*7+3] << endl;
+        line(line_img,Point(out[i*7],out[i*7+1]),Point(out[i*7+2],out[i*7+3]),Scalar(0,0,255),1);
+    }
     if(is_show)
     {
-        Mat line_img = Mat::zeros(n,m,CV_8UC1);
-        line_img = ~line_img;
-        int num = * n_line;
-        for(int i = 0;i < num;++ i)
-        {
-            // cout << out[i*7]<< ' ' << out[i*7+1] << ' ' << out[i*7+2] << ' ' << out[i*7+3] << endl;
-            line(line_img,Point(out[i*7],out[i*7+1]),Point(out[i*7+2],out[i*7+3]),0,1);
-        }
         namedWindow("line",WINDOW_FREERATIO);
         imshow("line",line_img);
         waitKey(0);
@@ -21,14 +24,14 @@ double* fline::line_img(Mat img,int *n_line,bool is_show)
     return out;
 }
 
-bool onSegment(Point p, Point q, Point r) {
+bool onSegment(point p, point q, point r) {
     if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) &&
         q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y))
         return true;
     return false;
 }
 
-int orientation(Point p, Point q, Point r) {
+int orientation(point p, point q, point r) {
     double val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
     if (val == 0) return 0; 
     return (val > 0) ? 1 : 2; 
@@ -50,7 +53,7 @@ bool doIntersect(Line l1, Line l2) {
 
     return false;
 }
-Point lineIntersection(Line l1, Line l2) {
+point lineIntersection(Line l1, Line l2) {
     // a1x + b1y = c1
     double a1 = l1.y.y - l1.x.y;
     double b1 = l1.x.x - l1.y.x;
@@ -65,41 +68,35 @@ Point lineIntersection(Line l1, Line l2) {
 
     int x = (b2*c1 - b1*c2) / determinant;
     int y = (a1*c2 - a2*c1) / determinant;
-    return Point(x, y);
+    return point(x, y);
 }
 
 Mat lineImg;
-Line getLine(Line x,vector<Point> p)
+Line getLine(Line x,vector<Point> p,int z,bool&k)
 {
+    point t[5];int cnt = 0;k = z;
     for(int i = 0;i <= 3;++ i)
     {
-        Line y = Line(p[i],p[(i+1)%4]);
+        Line y = Line(point(p[i].x,p[i].y),point(p[(i+1)%4].x,p[(i+1)%4].y));
         
         if(doIntersect(x, y))
         {
-            // cout << "i:" << i << endl;
-            // cout << "x: "<< x.x.x << " " << x.x.y << " " << x.y.x << " "<< x.y.y << endl;
-            // cout << "y: "<< y.x.x << " " << y.x.y << " " << y.y.x << " "<< y.y.y << endl;
-            // cout << "get line intersection: " << Line(lineIntersection(x, y),x.x).x.x << " " << Line(lineIntersection(x, y),x.x).x.y << " "<< 
-            //     Line(lineIntersection(x, y),x.x).y.x << " " << Line(lineIntersection(x, y),x.x).y.y << endl; 
-            
-            // line(lineImg,Point(x.x.y,x.x.x),Point(x.y.y,x.y.x),Scalar(0,0,255),1);
-            // line(lineImg,Point(y.x.y,y.x.x),Point(y.y.y,y.y.x),Scalar(0,255,0),1);
-            // line(lineImg,Point(lineIntersection(x, y).y,lineIntersection(x, y).x),Point(x.x.y,x.x.x),Scalar(255,0,0),1);
-            // namedWindow("lineImg",WINDOW_FREERATIO);
-            // imshow("lineImg",lineImg);
-            // waitKey(0);
-            Point L = lineIntersection(x, y);
-            if(L.x == INT_MIN && L.y == INT_MIN)
-                return x;
-            return Line(L,x.x);
+            point L = lineIntersection(x, y);
+            if(z)
+            {
+                if(L.x == INT_MIN && L.y == INT_MIN)
+                    return x;
+                return z == 1 ? Line(L,x.x) : Line(L,x.y);
+            }
+            else t[++ cnt] = L;
         }
     }
-    cout << "error exit" << endl;
-    exit(0);
+    k = cnt >= 2;
+    
+    return Line(t[0],t[1]);
 }
 
-vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,double *line,int n,int *line_n)
+vector<vector<vector<Line > > > fline::init_line(vector<vector<point > > mesh,double *seg,int n,int *line_n)
 {
     // cout << "init line" << endl;
     // lineImg = Mat::zeros(291,640,CV_8UC3);
@@ -108,59 +105,76 @@ vector<vector<vector<Line > > > fline::init_line(vector<vector<Point > > mesh,do
     vector<Line > mesh_line;
     vector<Point > contours;
     *line_n = 0;
+    Mat img = Mat :: zeros(700,1200,CV_8UC1);
+    
     for(int i = 0;i < 20; ++ i)
     {
         Mesh_line.clear();
         for(int j = 0;j < 20;++ j)
         {
             mesh_line.clear();
-            Point lt = Point(mesh[i][j].x,mesh[i][j].y);
-            Point rt = Point(mesh[i][j+1].x,mesh[i][j+1].y);
-            Point lb = Point(mesh[i+1][j].x,mesh[i+1][j].y);
-            Point rb = Point(mesh[i+1][j+1].x,mesh[i+1][j+1].y);
+            Point lt = Point(mesh[i][j].y,mesh[i][j].x);
+            Point rt = Point(mesh[i][j+1].y,mesh[i][j+1].x);
+            Point lb = Point(mesh[i+1][j].y,mesh[i+1][j].x);
+            Point rb = Point(mesh[i+1][j+1].y,mesh[i+1][j+1].x);
             contours.clear();
             contours.push_back(lt);
             contours.push_back(rt);
             contours.push_back(rb);
             contours.push_back(lb);
-            for(int k = 0;k < n;++ k)
+            for(int k = 0;k < n;++ k) 
             {
-                Point st = Point(line[k*7+1],line[k*7]);
-                Point ed = Point(line[k*7+3],line[k*7+2]);
-                int z1 = pointPolygonTest(contours,st,false);
-                int z2 = pointPolygonTest(contours,ed,false);
-
+                point st = point(seg[k*7],seg[k*7+1]);
+                point ed = point(seg[k*7+2],seg[k*7+3]);
+                // if(len_vector(st - ed) < 100) continue;
+                int z1 = pointPolygonTest(contours,Point2f(st.x,st.y),false);
+                int z2 = pointPolygonTest(contours,Point2f(ed.x,ed.y),false);
+                bool t;
                 if(z1 >= 0 && z2 >= 0)
                 {
                     if(st == ed) continue;
                     ++ (*line_n);
-                    mesh_line.push_back(Line(st,ed,line[k*7+5]));
+                    line(img,Point(st.x,st.y),Point(ed.x,ed.y),255);
+                    mesh_line.push_back(Line(st,ed));
                 }
-                else if(z1 >= 0)
+                else
                 {
-                    Line a = getLine(Line(st,ed),contours);
-                    if(a.x == a.y) continue;
+                    Line a = getLine(Line(st,ed),contours,z1?1:2,t);
+                    if(a.x == a.y || !t) continue;
+                    line(img,Point(a.x.x,a.x.y),Point(a.y.x,a.y.y),255);
                     ++ (*line_n);
                     mesh_line.push_back(a);
                 }
-                else if(z2 >= 0)
-                {
-                    Line a = getLine(Line(ed,st),contours);
-                    if(a.x == a.y) continue;
-                    ++ (*line_n);
-                    mesh_line.push_back(a);
-                }
-                
             }
             Mesh_line.push_back(mesh_line);
         }
         Mesh_Line.push_back(Mesh_line);
     }
+
+    // namedWindow("lineqwq",WINDOW_FREERATIO);
+    // imshow("lineqwq",img);
     // cout << *line_n << endl;
     // cout << "init line end" << endl;
     return Mesh_Line;
 }
-
+void fline::init_bins(int *num,vector<vector<vector<Line > > >&mesh_line,int number)
+{
+    for(int i = 0;i < number; ++ i) num[i] = 0;
+    for(int i = 0;i < 20;++ i)
+        for(int j = 0;j < 20;++ j)
+            for(auto&k: mesh_line[i][j])
+            {
+                point q = point(k.x.x - k.y.x,k.x.y - k.y.y);
+                k.theta = q.x / (sqrt(q.x * q.x + q.y * q.y));
+                if(k.theta > 1) // too big
+                    k.theta = 1;
+                k.theta = acos(k.theta);
+                k.pos = floor(k.theta/PI * number);
+                k.pos = min(number - 1,k.pos);
+                num[k.pos] ++ ;
+                // cout << k.theta << endl;
+            }
+}
 void fline::check_line(Mat img,vector<vector<vector<Line > > >mesh_line)
 {
     cout << "check line" << endl;
@@ -169,8 +183,14 @@ void fline::check_line(Mat img,vector<vector<vector<Line > > >mesh_line)
     for(int i = 0;i < 20;++ i)
         for(int j = 0;j < 20;++ j)
             for(auto k : mesh_line[i][j])
+            {
+                
                 // line(fimg,k.x,k.y,Scalar(0,255,0),1);
-                line(fimg,Point(k.x.y,k.x.x),Point(k.y.y,k.y.x),Scalar(0,255,0),1);
+                line(fimg,Point(k.x.x,k.x.y),Point(k.y.x,k.y.y),Scalar(0,255,0),1);
+                // namedWindow("mesh line",WINDOW_FREERATIO);
+                // imshow("mesh line",fimg);
+                // waitKey(0);
+            }
         
     namedWindow("mesh line",WINDOW_FREERATIO);
     imshow("mesh line",fimg);

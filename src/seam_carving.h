@@ -1,5 +1,10 @@
+#pragma once
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2\opencv.hpp>
+#include <iostream>
+#include "tool.h"
+
 using namespace cv;
 using namespace std;
 
@@ -18,5 +23,5 @@ namespace SeamC
     void seam_insert(int sx,int sy,int tx,int ty,int dir);
     Mat get_seam_carving();
     Mat get_rec_img();
-    vector<vector<Point > > get_U();
+    vector<vector<point > > get_U();
 };

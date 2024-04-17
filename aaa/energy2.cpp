@@ -1,17 +1,17 @@
 #include "energy.h"
 
 
-SparseMatrix<double> energy::shape_energy(vector<vector<point > > mesh)
+SparseMatrix<double> energy::shape_energy(vector<vector<Point > > mesh)
 {
     // double  = 0;
     SparseMatrix<double> shape_energy(20*20*8,21*21*2);
     for(int i = 0;i < 20;++ i)
         for(int j = 0;j < 20;++ j)
         {
-            point p0 = mesh[i][j];
-            point p1 = mesh[i][j+1];
-            point p2 = mesh[i+1][j];
-            point p3 = mesh[i+1][j+1];
+            Point p0 = mesh[i][j];
+            Point p1 = mesh[i][j+1];
+            Point p2 = mesh[i+1][j];
+            Point p3 = mesh[i+1][j+1];
             MatrixXd Aq(8,4);
             Aq << p0.x, - p0.y , 1 , 0,
                   p0.y,   p0.x , 0 , 1,
@@ -51,7 +51,7 @@ SparseMatrix<double> energy::shape_energy(vector<vector<point > > mesh)
     return shape_energy;
 }
 
-pair<SparseMatrix<double>,VectorXd > energy::bound_energy(vector<vector<point > > mesh,double inf,int n,int m)
+pair<SparseMatrix<double>,VectorXd > energy::bound_energy(vector<vector<Point > > mesh,double inf,int n,int m)
 {
     // cout << "solve bound energy" << endl;
     pair<SparseMatrix<double>,VectorXd > bound_energy; 
@@ -88,7 +88,7 @@ pair<SparseMatrix<double>,VectorXd > energy::bound_energy(vector<vector<point > 
     return bound_energy;
 }
 
-MatrixXd inverse_bilinear_interpolation_function(vector<point> P[2],Line X)
+MatrixXd inverse_bilinear_interpolation_function(vector<Point> P[2],Line X)
 {
     MatrixXd A = MatrixXd::Zero(8,8);
     VectorXd B(8,1);
@@ -115,7 +115,7 @@ MatrixXd inverse_bilinear_interpolation_function(vector<point> P[2],Line X)
     return F;
 }
 
-point inverse_bilinear_interpolation(vector<point> P[2],Line X)
+Point inverse_bilinear_interpolation(vector<Point> P[2],Line X)
 {
     // cout <<"invers V :  " << P[0] << ' ' << P[1] << endl;
     MatrixXd F = inverse_bilinear_interpolation_function(P,X);
@@ -133,18 +133,67 @@ point inverse_bilinear_interpolation(vector<point> P[2],Line X)
     // cout <<"----b----"<< endl << b << endl;
     // cout << q << ' ' << e << endl;
     // cout << X.x.x - X.y.x << ' ' << X.x.y - X.y.y << endl;
-    return point(q,e);
+    return Point(q,e);
     // if(q == 0 && e == 0) return 4;
     // cout <<"theta :" << q/ sqrt(q*q + e*e) << " " << acos((q)/ sqrt(q*q + e*e))<< endl;
     // cout << acos(q / sqrt(q*q + e*e)) << endl;
     // return acos((q)/ sqrt(q*q + e*e));
 }
+// void energy::Line_rotate_count(double *bins,int *num,vector<vector<vector<Line > > >&mesh_line,vector<vector<Point> >mesh,vector<vector<Point> >V,int number)
+// {
+//     cout << "solve Line rotate count" << endl;
+//     for(int i = 0;i < number;++ i)
+//         bins[i] = 0,num[i] = 0;
+//     vector<Point> p[2];
+//     for(int i = 0;i < 20;++ i)
+//     {
+//         for(int j = 0;j < 20;++ j)
+//         {
+//             for(auto&k: mesh_line[i][j])
+//             {
+//                 p[0].clear();p[1].clear();
+//                 p[0].push_back(mesh[i][j]); p[0].push_back(mesh[i][j+1]);
+//                 p[0].push_back(mesh[i+1][j+1]); p[0].push_back(mesh[i+1][j]);
+//                 p[1].push_back(V[i][j]); p[1].push_back(V[i][j+1]);
+//                 p[1].push_back(V[i+1][j+1]); p[1].push_back(V[i+1][j]);
+//                 // cout <<"line rotate theta : " << theta << ' ' << acos((k.x.x - k.y.x)/sqrt((k.x.y - k.y.y)*((k.x.y - k.y.y))+((k.x.x - k.y.x))*((k.x.x - k.y.x)))) << endl;
+//                 // cout << "qwq" << endl;
+//                 Point t = inverse_bilinear_interpolation(p,k);
+//                 // cout << "qaq" << endl;
+//                 if(t.x == 0 && t.x == 0) { k.pos = 50; continue; }
+//                 Point q = Point(k.x.x - k.y.x,k.x.y - k.y.y);
+//                 // cout << (t.x * q.x + t.y * q.y) << ' '<<sqrt(t.x * t.x + t.y * t.y) << ' ' << sqrt(q.x * q.x + q.y * q.y) << endl;
+//                 // cout << t << ' ' << q << endl;
+//                 // cout << (t.x * q.x + t.y * q.y) * ((t.x * q.x + t.y * q.y)) << ' ' << 
+//                 //     ((t.x * t.x) + (t.y * t.y)) * ((q.x * q.x) + (q.y * q.y)) << ' '<< (t.x * q.x + t.y * q.y) * (t.x * q.x + t.y * q.y) / ((t.x * t.x) + (t.y * t.y)) * ((q.x * q.x) + (q.y * q.y))<<endl;
+//                 // cout << sqrt(t.x * t.x + t.y * t.y) * sqrt(q.x * q.x + q.y * q.y) << " " << (t.x * q.x + t.y * q.y) << endl;
+//                 if(sqrt(t.x * t.x + t.y * t.y) * sqrt(q.x * q.x + q.y * q.y) < (t.x * q.x + t.y * q.y)) // too big
+//                     k.theta = PI - 0.00001;
+//                 else k.theta = acos((t.x * q.x + t.y * q.y) / (sqrt(t.x * t.x + t.y * t.y) * sqrt(q.x * q.x + q.y * q.y)));
+//                 // cout << k.theta << endl;
 
-void energy::Line_rotate_count(double *bins,int *num,vector<vector<vector<Line > > >&mesh_line,vector<vector<point> >mesh,vector<vector<point> >V,int number)
+//                 k.pos = floor(k.theta/PI * 50);
+//                 k.pos = min(49,k.pos);
+//                 // cout <<"theta and pos : "<< k.theta << ' ' << k.pos << endl;
+//                 bins[k.pos] += k.theta;
+//                 num[k.pos] ++;
+//             }
+//         }
+//     }
+//     for(int i = 0;i < number; ++ i)
+//         if(num[i]) bins[i] /= num[i];
+//     // cout << "-----bins----" << endl;
+//     // for(int i = 0;i < number; ++ i)
+//     //     cout << bins[i] << ' '<< endl;
+//     cout << "Line rotate count solved out" << endl;
+// }
+
+void energy::Line_rotate_count(double *bins,int *num,vector<vector<vector<Line > > >&mesh_line,vector<vector<Point> >mesh,vector<vector<Point> >V,int number)
 {
     // cout << "solve Line rotate count" << endl;
-    for(int i = 0;i < number;++ i) bins[i] = 0;
-    vector<point> p[2];
+    for(int i = 0;i < number;++ i)
+        bins[i] = 0;
+    vector<Point> p[2];
     for(int i = 0;i < 20;++ i)
     {
         for(int j = 0;j < 20;++ j)
@@ -155,18 +204,26 @@ void energy::Line_rotate_count(double *bins,int *num,vector<vector<vector<Line >
                 p[0].push_back(mesh[i][j]); p[0].push_back(mesh[i][j+1]);
                 p[0].push_back(mesh[i+1][j+1]); p[0].push_back(mesh[i+1][j]);
                 p[1].push_back(V[i][j]); p[1].push_back(V[i][j+1]);
-                p[1].push_back(V[i+1][j+1]); p[1].push_back(V[i+1][j]); 
-                point t = inverse_bilinear_interpolation(p,k);
-                // cout << t <<' ' << k.x - k.y << endl;
+                p[1].push_back(V[i+1][j+1]); p[1].push_back(V[i+1][j]);
+                // cout <<"line rotate theta : " << theta << ' ' << acos((k.x.x - k.y.x)/sqrt((k.x.y - k.y.y)*((k.x.y - k.y.y))+((k.x.x - k.y.x))*((k.x.x - k.y.x)))) << endl;
+                // cout << "qwq" << endl;
+                Point t = inverse_bilinear_interpolation(p,k);
+                // cout << "qaq" << endl;
                 if(t.x == 0 && t.x == 0) { k.solve = 0; continue; }
                 else k.solve = 1;
 
-                double theta = t.x / (sqrt(t.x * t.x + t.y * t.y));
-                if(theta > 1) theta = 1;
+                double theta = t.x / (sqrt(t.x * t.x + t.y*t.y));
+                if(theta > 1) theta = 0.999999999;
                 theta = acos ( theta );
-
-                bins[k.pos] += theta - k.theta;
-                // num[k.pos] ++;
+                // cout << (t.x * q.x + t.y * q.y) << ' '<<sqrt(t.x * t.x + t.y * t.y) << ' ' << sqrt(q.x * q.x + q.y * q.y) << endl;
+                // cout << t << ' ' << q << endl;
+                // cout << (t.x * q.x + t.y * q.y) * ((t.x * q.x + t.y * q.y)) << ' ' << 
+                //     ((t.x * t.x) + (t.y * t.y)) * ((q.x * q.x) + (q.y * q.y)) << ' '<< (t.x * q.x + t.y * q.y) * (t.x * q.x + t.y * q.y) / ((t.x * t.x) + (t.y * t.y)) * ((q.x * q.x) + (q.y * q.y))<<endl;
+                // cout << sqrt(t.x * t.x + t.y * t.y) * sqrt(q.x * q.x + q.y * q.y) << " " << (t.x * q.x + t.y * q.y) << endl;
+                
+                // cout <<"theta and pos : "<< k.theta << ' ' << k.pos << endl;
+                bins[k.pos] += theta - k.theta ;
+                num[k.pos] ++;
             }
         }
     }
@@ -178,7 +235,7 @@ void energy::Line_rotate_count(double *bins,int *num,vector<vector<vector<Line >
     // cout << "Line rotate count solved out" << endl;
 }
 
-MatrixXd get_bilinear_mat(vector<point> p,Line L)
+MatrixXd get_bilinear_mat(vector<Point> p,Line L)
 {
     // cout << "solve get bilinear mat" << endl;
     MatrixXd e1(4,8);
@@ -210,12 +267,12 @@ MatrixXd get_bilinear_mat(vector<point> p,Line L)
     return K;
 }
 
-SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<point > > mesh,vector<vector<point > > V,double *bins,int num)
+SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<Point > > mesh,vector<vector<Point > > V,double *bins,int num)
 {
     // cout << "line energy solve" << endl;
     // cout << num << endl;
     SparseMatrix<double> line_energy(num * 2,21 * 21 * 2);
-    vector<point> p;
+    vector<Point> p;
     int cnt = 0;
     double cost = 0;
     for(int i = 0;i < 20;++ i)
@@ -239,20 +296,15 @@ SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_lin
                 p.push_back(mesh[i][j]); p.push_back(mesh[i][j+1]);
                 p.push_back(mesh[i+1][j]); p.push_back(mesh[i+1][j+1]);
 
-                // Line k1 = Line(k.x,mesh[i][j]);
-                // Line k2 = Line(k.y,mesh[i][j]);
-                // MatrixXd K1 = get_bilinear_mat(p,k1);
-                // MatrixXd K2 = get_bilinear_mat(p,k2);
                 MatrixXd K = get_bilinear_mat(p,k);
 
                 MatrixXd dec(2,4); 
                 dec << 1,0,-1,0,
                         0,1,0,-1;
-                // MatrixXd K = dec * (K1 - K2);
                 K = dec * K;
                 
                 MatrixXd out = C * K;
-                // output(out,"out");
+                if(isnan(out(0,0))) continue;
                 for(int x = 0;x < 2; ++ x)
                 {
                     line_energy.insert(cnt,(i*21+j)*2) = out(x,1);
@@ -274,12 +326,12 @@ SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_lin
     return line_energy;
 }
 
-// SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<point > > mesh,vector<vector<point > > V,double *bins,int num)
+// SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<Point > > mesh,vector<vector<Point > > V,double *bins,int num)
 // {
 //     // cout << "line energy solve" << endl;
 //     // cout << num << endl;
 //     SparseMatrix<double> line_energy(num * 2,21 * 21 * 2);
-//     vector<point> p;
+//     vector<Point> p;
 //     int cnt = 0;
 //     double cost = 0;
 //     for(int i = 0;i < 20;++ i)

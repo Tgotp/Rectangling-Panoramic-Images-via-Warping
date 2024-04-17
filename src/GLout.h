@@ -7,10 +7,12 @@
 #include <opencv2/opencv.hpp>
 #include "shader_s.h"
 #include "stb_image.h"
+#include "tool.h"
 #include <iostream>
+
 using namespace std;
 using namespace cv;
 
 GLuint matToTexture(const cv::Mat &mat, GLenum minFilter, GLenum magFilter, GLenum wrapFilter) ;
-void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V);
+void GLout(Mat img,vector<vector<point> > mesh,vector<vector<point> > V);
 int GLinit();

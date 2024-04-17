@@ -2,23 +2,23 @@
 
 #include "mesh_placement.h"
 
-vector<vector<Point > > Mesh_Placement(Mat img,Mat image,vector<vector<Point > > U,vector<vector<Point > >&P,bool is_show)
+vector<vector<point > > Mesh_Placement(Mat img,Mat image,vector<vector<point > > U,vector<vector<point > >&P,bool is_show)
 {
     int n = img.rows,m = img.cols;
     // cout << n << ' ' << m << endl;
     // cout << image.rows << ' ' << image.cols << endl;
-    vector<vector<Point > > pos;
-    vector<Point > p;
+    vector<vector<point > > pos;
+    vector<point > p;
     for(int i = 0;i <= 20; ++ i)
     {
         p.clear();
-        int x = (n - 1) / 20.0 * i;
-        if(x > n - 1) x = n - 1;
+        int x = (n - 3) / 20.0 * i;
+        if(x > n - 3) x = n - 3;
         for(int j = 0;j <= 20; ++ j)
         {
-            int y = (m - 1) / 20.0 * j;
-            if(y > m - 1) y = m - 1;
-            p.push_back(Point(x,y));
+            int y = (m - 3) / 20.0 * j;
+            if(y > m - 3) y = m - 3;
+            p.push_back(point(x,y));
         }
         pos.push_back(p);
     }
@@ -75,7 +75,29 @@ vector<vector<Point > > Mesh_Placement(Mat img,Mat image,vector<vector<Point > >
     return pos;
 }
 
-VectorXd get_mesh_point(vector<vector<Point> >pos)
+
+void img_mesh(Mat&img,vector<vector<point > > pos)
+{
+    int n = img.rows,m = img.cols;
+    for(int i = 0;i <= 20; ++ i) for(int j = 0;j <= 20;++ j)
+        swap(pos[i][j].x,pos[i][j].y);
+    for(int i = 0;i <= 20; ++ i)
+    {
+        for(int j = 0;j <= 20;++ j)
+        {
+            // cout << pos[i][j].x << ' '<<pos[i][j].y << ' ' << i << ' ' << j << endl;
+            if(i != 0) line(img,Point(pos[i][j].x,pos[i][j].y),Point(pos[i-1][j].x,pos[i-1][j].y),Scalar(0,255,0),2);
+            if(j != 0) line(img,Point(pos[i][j].x,pos[i][j].y),Point(pos[i][j-1].x,pos[i][j-1].y),Scalar(0,255,0),2);
+        }
+    } 
+    namedWindow("mesh_placement",WINDOW_FREERATIO);
+    imshow("mesh_placement",img);
+
+    waitKey(0);
+
+}
+
+VectorXd get_mesh_point(vector<vector<point> >pos)
 {
     VectorXd vec = VectorXd(21*21*2);
     for(int i = 0;i <= 20;++ i)
@@ -85,17 +107,25 @@ VectorXd get_mesh_point(vector<vector<Point> >pos)
     return vec;
 }
 
-vector<vector<Point > > vec_to_mesh(VectorXd V)
+vector<vector<point > > vec_to_mesh(VectorXd V)
 {
-    vector<vector<Point > > mesh;
-    vector<Point > m;
+    vector<vector<point > > mesh;
+    vector<point > m;
     for(int i = 0;i <= 20; ++ i)
     {
         m.clear();
         for(int j = 0;j <= 20; ++ j)
         {
+            // if(V((i*21+j)*2) < -0.0000001 || V((i*21+j)*2+1)<-0.0000001) 
+            // {
+            //     printf("error qwq\n");
+            //     cout << i << ' ' << j << endl;
+            //     cout << V((i*21+j)*2) <<' ' <<V((i*21+j)*2+1) << endl;
+            // }
+            // if(V((i*21+j)*2) > 289 || V((i*21+j)*2+1) > 633) 
+            //     printf("error qaq\n");
             // cout << V((i*21+j)*2)<< ' ' << V((i*21+j)*2+1) << endl;
-            m.push_back(Point(V((i*21+j)*2),V((i*21+j)*2+1)));
+            m.push_back(point(V((i*21+j)*2),V((i*21+j)*2+1)));
         }
         mesh.push_back(m);
     }

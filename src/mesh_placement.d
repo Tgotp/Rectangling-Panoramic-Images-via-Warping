@@ -299,4 +299,5 @@ src/mesh_placement.o: src/mesh_placement.cpp src/mesh_placement.h \
  include/Eigen/src/IterativeLinearSolvers/LeastSquareConjugateGradient.h \
  include/Eigen/src/IterativeLinearSolvers/BiCGSTAB.h \
  include/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
- include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h
+ include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h src/tool.h \
+ src/lsd.h

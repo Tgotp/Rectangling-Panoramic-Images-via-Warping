@@ -1,3 +1,7 @@
+# Result
+
+![img](file://\output\1.png)
+
 # 数学推导
 
 多元二次函数表示为
@@ -24,42 +28,47 @@ $E_S(V) = \frac{1}{N_S}\sum||(A_q(A_q^TA_q)^{-1}A^{T}_{q}-I)V_q||^2$
 
 令$A_q=A_q(A_q^TA_q)^{-1}A^{T}_{q}-I$
 
-则$E_S(V)=\frac{1}{N_S}\sum(A_q*V_q)^T(A_qV_q)$
+则$E_S(V)=\frac{1}{N_S}\sum ||A_qV_q||^2$
 
-$E_S(V)=\sum\frac{1}{N_S}*(V_q^T(A^T_qA_q)V_q)$
+
 
 $C = R\hat{e}(\hat{e}^T\hat{e})^{-1}\hat{e}^TR^T-I$
 
 $E_L(V) = \frac{1}{N_L}\sum||C_j*e_{j}||^2$
 
-$C_j$ 是线段j旋转的矩阵，$e_{j}$为$j$在所属的桶内的输出的双线性插值线段,$\hat{e}$为初始线段。
+$C_j$ 是线段j旋转的矩阵，
 
-同样的
+$e_{j}$为$j$在所属的桶内的输出的双线性插值之后的向量
 
-$E_L(V) = \sum\frac{1}{N_L}e_{j}^T(C_j^TC_j)*e_{j}$
+,$\hat{e}$为初始向量。
 
-e可以由V进行双线性插值得到$e_j=\hat{e}'_jF_L$ (要修改一下)
+同样的 $E_L(V) = \frac{1}{N_L} \sum C_j*e_{j}$
+
+$e$可以由$V$进行双线性插值得到$e_j=\hat{e}'_jF_L$ 
 
 $$\begin{bmatrix}
-{\hat{x}_0}&{\hat{y}_0}&\hat{x}_0\hat{y}_0&1&0&0&0&0\\
-{0}&{0}&0&0&{\hat{x}_0}&{\hat{y}_0}&\hat{x}_0\hat{y}_0&1\\
-{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&\\{0}&{0}&0&0&{\hat{x}_3}&{\hat{y}_3}&\hat{x}_{3}\hat{y}_3&1\\
-\end{bmatrix}*F_L=\begin{bmatrix}x_0\\y_0\\\vdots\\{y_3}\end{bmatrix}$$
+{\hat{x}_0}&{\hat{y}_0}&\hat{x}_0\hat{y}_0&1&0&0&0&0\\0&0&0&0&{\hat{x}_1}&{\hat{y}_1}&\hat{x}_1\hat{y}_1&1\\
+{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots}&{\vdots} \\ 0&0&0&0&{\hat{x}_3}&{\hat{y}_3}&\hat{x}_3\hat{y}_3&1\\
+\end{bmatrix}*F_L=\begin{bmatrix}x_0 \\ y_0\\\vdots \\x_3\\{y_3}\end{bmatrix}$$
 
 令左边这个为$k_j$则$e_j=\hat{e}_j'k^{-1}*V_q$
 
 更进一步令$K_j=\hat{e}_jk_j^{-1}$
 
-则$E_L(V)=\sum\frac{1}{N_L}*(K_jV_q)^T(C_j^TC_j)K_jV_q$​
+注意$\hat{e}$​是向量还应操作$\begin{bmatrix} 1 & 0& -1 &0\\0&1&0&1 \end{bmatrix} *\begin{bmatrix} x_0 \\ y_0 \\ x_1 \\y_1\end{bmatrix}=[x_0-x_1,y_0-y_1]
+$
 
-则$E_L(V)=\sum\frac{1}{N_L}*V_q^T(K_j^TC_j^TC_jK_j)V_q$
 
-对于$E_B(V)$ 由于存在平方，需要求解的时候特殊约束处理，视作矩阵B
+
+总的来说  $\begin{bmatrix} [2,2] *& [2,4]* & [4,8]* & [8,8]* & [8,1] & = [2,1] \\ \vdots & \vdots & \vdots& \vdots& \vdots\\ C& D & e' & F & V_q & = e\end{bmatrix}$
+
+求解$||X||^2$直接用最小二乘法就行
+
+对于$E_B(V)$ 由于非线性，需要求解的时候特殊约束处理，视作矩阵B
 
 综上可知
 
 求解$AV_q=B$
 
-其中 $A=\sum\frac{A^T_qA_q}{N_S}+\lambda_L\sum\frac{K_j^TC_j^TC_jK_j}{N_L}+\lambda_BQ$
-
 简而言之，就是把每一个网络、每一个线段、每一个约束条件看作一个线性方程计算Energy
+

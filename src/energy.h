@@ -10,14 +10,15 @@
 #include <Eigen/Eigen>
 #include "fline.h"
 #include "tool.h"
+
 using namespace std;
 using namespace cv;
 using namespace Eigen;
 
 namespace energy
 {
-    SparseMatrix<double> shape_energy(vector<vector<Point > > mesh);
-    SparseMatrix<double> line_energy(vector<vector<vector<Line > > > mesh_line,vector<vector<Point > > mesh,double*bins,int num);
-    pair<SparseMatrix<double>,VectorXd > bound_energy(vector<vector<Point > > mesh,double inf,int n,int m);
-    double* Line_rotate_count(int *bins,vector<vector<vector<Line > > > mesh_line,vector<vector<Point> >mesh,vector<vector<Point > > V,int number);
+    SparseMatrix<double> shape_energy(vector<vector<point > > mesh);
+    SparseMatrix<double> line_energy(vector<vector<vector<Line > > > mesh_line,vector<vector<point > > mesh,vector<vector<point > > V,double*bins,int num);
+    pair<SparseMatrix<double>,VectorXd > bound_energy(vector<vector<point > > mesh,double inf,int n,int m);
+    void Line_rotate_count(double *bins,int *num,vector<vector<vector<Line > > >&mesh_line,vector<vector<point> >mesh,vector<vector<point > > V,int number);
 }

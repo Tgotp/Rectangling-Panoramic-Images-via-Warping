@@ -13,7 +13,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V)
+void GLout(Mat img,vector<vector<point> > mesh,vector<vector<point> > V)
 {
     int n = img.rows,m = img.cols;
     
@@ -64,7 +64,7 @@ void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V)
     for(int i = 0;i <= 20; ++ i)
         for(int j = 0;j <= 20; ++ j)
         {
-            int ii = 20 - i,jj = j;
+            int ii = i,jj = j;
             // int x = (n - 1) / 20.0 * ii;
             // if(x > n - 1) x = n - 1;
             // int y = (m - 1) / 20.0 * jj;
@@ -73,7 +73,7 @@ void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V)
             // vertices[(ii*21+jj)*8] = (float)2.0*mesh[20-ii][jj].y/m - 1,
             // vertices[(ii*21+jj)*8 + 1] = (float)2.0*mesh[20-ii][jj].x/n - 1;
             vertices[(i*21+j)*8] = (float)2.0*y/m - 1,
-            vertices[(i*21+j)*8 + 1] = (float)2.0*x/n - 1;
+            vertices[(i*21+j)*8 + 1] = 1 - (float)2.0*x/n;
             vertices[(i*21+j)*8 + 2] = (float)0;
             
             // vertices[(i*21+j)*8 + 3] = (float)img.at<Vec3b>(mesh[ii][jj].x,mesh[ii][jj].y)[2]/255.0,
@@ -82,8 +82,8 @@ void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V)
             
             // vertices[(ii*21+jj)*8 + 6] = (float)1.0*y/m;
             // vertices[(ii*21+jj)*8 + 7] = (float)1.0*x/n;
-            vertices[(i*21+j)*8 + 6] = (float)1.0*mesh[i][j].y/m-1;
-            vertices[(i*21+j)*8 + 7] = (float)1.0*mesh[i][j].x/n-1;
+            vertices[(i*21+j)*8 + 6] = (float)1.0*mesh[i][j].y/m;
+            vertices[(i*21+j)*8 + 7] = 1 - (float)1.0*mesh[i][j].x/n;
         }
 
     // unsigned int*indices = new unsigned int[20*20*6];
@@ -91,12 +91,13 @@ void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V)
     for(int i = 0;i < 20; ++ i)
         for(int j = 0;j < 20; ++ j)
         {
-            indices[(i*20+j)*6] = i*21+j;
-            indices[(i*20+j)*6+1] = i*21+j+1;
-            indices[(i*20+j)*6+2] = (i+1)*21+j;
-            indices[(i*20+j)*6+3] = i*21+j+1;
-            indices[(i*20+j)*6+4] = (i+1)*21+(j+1);
-            indices[(i*20+j)*6+5] = (i+1)*21+j;
+            int ii = i,jj = j;
+            indices[(i*20+j)*6] = ii*21+j;
+            indices[(i*20+j)*6+1] = ii*21+j+1;
+            indices[(i*20+j)*6+2] = (ii+1)*21+j;
+            indices[(i*20+j)*6+3] = ii*21+j+1;
+            indices[(i*20+j)*6+4] = (ii+1)*21+(j+1);
+            indices[(i*20+j)*6+5] = (ii+1)*21+j;
         }
     // for(int i = 0;i < 3; ++ i)
     // {
@@ -165,7 +166,7 @@ void GLout(Mat img,vector<vector<Point> > mesh,vector<vector<Point> > V)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //宽为奇数
     cvtColor(img, tempMat, COLOR_BGR2RGB);
     flip(tempMat, tempMat, 0);
-    flip(tempMat, tempMat, 1);
+    // flip(tempMat, tempMat, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m, n, 0, GL_RGB, GL_UNSIGNED_BYTE, tempMat.data);
 
     // int width, height, nrChannels;
