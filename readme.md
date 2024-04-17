@@ -1,6 +1,6 @@
 # Result
 
-![img](./\output/1.png)
+![img](./output/1.png)
 
 # 数学推导
 
