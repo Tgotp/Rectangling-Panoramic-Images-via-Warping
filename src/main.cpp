@@ -24,8 +24,8 @@ void init(int*op)
     op[5] = 0; // show mesh segment
     op[6] = 1; // show energy cost
     op[7] = 0; // show shape cost
-    op[8] = 0; // show line costt
-    op[9] = 0; // show final mesh and line
+    op[8] = 0; // show line cost
+    op[9] = 1; // show final mesh and line
 }
 
 int main()
@@ -134,7 +134,7 @@ int main()
 
     if(op[9])
     {
-        img_mesh(line_img,mesh);
+        // img_mesh(line_img,mesh);
         GLout(line_img,mesh,pos);
     }
     cout << fixed << setprecision(3)<< "total cost time: " << (st4 - st) / CLOCKS_PER_SEC << endl; 
