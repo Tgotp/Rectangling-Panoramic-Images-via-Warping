@@ -22,6 +22,6 @@ namespace fline
     double* line_img(Mat img,int *n_line,Mat&line_img,bool is_show=1);
     double* solve_img(Mat img);
     double get_gray(Mat&img,int x,int y);
-    vector<vector<vector<Line > > > init_line(vector<vector<point > > mesh,double *line,int n,int*line_n);
+    vector<vector<vector<Line > > > init_line(vector<vector<point > > mesh,double *line,int n,int*line_n,int length);
     void init_bins(int *num,vector<vector<vector<Line > > >&mesh_line,int number);
 }

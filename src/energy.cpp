@@ -46,7 +46,7 @@ SparseMatrix<double> energy::shape_energy(vector<vector<point > > mesh)
             //         shape_energy.insert(t+x,y) = Aq(x,y);
         }
     // cout << shape_energy << endl;
-    cout << "solved shape energy" << endl;
+    // cout << "solved shape energy" << endl;
 	shape_energy.makeCompressed();
     return shape_energy;
 }
@@ -84,7 +84,7 @@ pair<SparseMatrix<double>,VectorXd > energy::bound_energy(vector<vector<point > 
     }
     bound_energy = make_pair(a,b);
     // cout << cnt << endl;
-    cout << "solved bound energy" << endl;
+    // cout << "solved bound energy" << endl;
     return bound_energy;
 }
 
@@ -115,6 +115,7 @@ MatrixXd inverse_bilinear_interpolation_function(vector<point> P[2],Line X)
     return F;
 }
 
+// MatrixXd zzz,zzzz;
 point inverse_bilinear_interpolation(vector<point> P[2],Line X)
 {
     // cout <<"invers V :  " << P[0] << ' ' << P[1] << endl;
@@ -126,6 +127,7 @@ point inverse_bilinear_interpolation(vector<point> P[2],Line X)
         0,0,0,0,X.y.x,X.y.y,X.y.x*X.y.y,1;
     MatrixXd a = x * F;
     MatrixXd b = y * F;
+    // zzz = a;zzzz = b;
     double q = a(0) - b(0);
     double e = a(1) - b(1);
     // cout << X.x << ' ' << X.y << endl;
@@ -167,6 +169,23 @@ void energy::Line_rotate_count(double *bins,int *num,vector<vector<vector<Line >
 
                 bins[k.pos] += theta - k.theta;
                 // num[k.pos] ++;
+
+                // Mat img = Mat::zeros(700,1200,CV_8UC3);
+                // line(img,Point(k.x.x,k.x.y),Point(k.y.x,k.y.y),Scalar(0,255,0));
+                // line(img,Point(mesh[i][j].y,mesh[i][j].x),Point(mesh[i][j+1].y,mesh[i][j+1].x),Scalar(0,255,0));
+                // line(img,Point(mesh[i][j].y,mesh[i][j].x),Point(mesh[i+1][j].y,mesh[i+1][j].x),Scalar(0,255,0));
+                // line(img,Point(mesh[i+1][j+1].y,mesh[i+1][j+1].x),Point(mesh[i][j+1].y,mesh[i][j+1].x),Scalar(0,255,0));
+                // line(img,Point(mesh[i+1][j].y,mesh[i+1][j].x),Point(mesh[i+1][j+1].y,mesh[i+1][j+1].x),Scalar(0,255,0));
+                
+                // line(img,Point(zzz(0),zzz(1)),Point(zzzz(0),zzzz(1)),Scalar(0,255,0));
+                // line(img,Point(V[i][j].y,V[i][j].x),Point(V[i][j+1].y,V[i][j+1].x),Scalar(0,0,255));
+                // line(img,Point(V[i][j].y,V[i][j].x),Point(V[i+1][j].y,V[i+1][j].x),Scalar(0,0,255));
+                // line(img,Point(V[i+1][j+1].y,V[i+1][j+1].x),Point(V[i][j+1].y,V[i][j+1].x),Scalar(0,0,255));
+                // line(img,Point(V[i+1][j].y,V[i+1][j].x),Point(V[i+1][j+1].y,V[i+1][j+1].x),Scalar(0,0,255));
+                // cout << "X : \n" << k.x - k.y << "Trans X: \n" << t << endl;
+                // namedWindow("trans k: ",WINDOW_FREERATIO);
+                // imshow("trans k: ",img);
+                // if(waitKey(0) == 'q') exit(0);
             }
         }
     }
@@ -210,7 +229,13 @@ MatrixXd get_bilinear_mat(vector<point> p,Line L)
     return K;
 }
 
-SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<point > > mesh,vector<vector<point > > V,double *bins,int num)
+bool check(MatrixXd X,int m,int n)
+{
+    double x = X(1),y = X(0);
+    return x < n && y < m && x >= 0 && y >= 0;
+}
+
+SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<point > > mesh,vector<vector<point > > V,double *bins,int num,int n,int m)
 {
     // cout << "line energy solve" << endl;
     // cout << num << endl;
@@ -239,11 +264,17 @@ SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_lin
                 p.push_back(mesh[i][j]); p.push_back(mesh[i][j+1]);
                 p.push_back(mesh[i+1][j]); p.push_back(mesh[i+1][j+1]);
 
-                // Line k1 = Line(k.x,mesh[i][j]);
-                // Line k2 = Line(k.y,mesh[i][j]);
-                // MatrixXd K1 = get_bilinear_mat(p,k1);
-                // MatrixXd K2 = get_bilinear_mat(p,k2);
                 MatrixXd K = get_bilinear_mat(p,k);
+                MatrixXd Vq(8,1);
+                Vq << V[i][j].y,V[i][j].x,V[i][j+1].y,V[i][j+1].x,
+                    V[i+1][j].y,V[i+1][j].x,V[i+1][j+1].y,V[i+1][j+1].x;
+                if(!check(K*Vq,m,n)) 
+                {
+                    // MatrixXd fail = K*Vq; 
+                    // cout << m<< ' ' << n << endl;
+                    // cout << fail(1) << ' ' << fail(0) << endl;
+                    continue;
+                }
 
                 MatrixXd dec(2,4); 
                 dec << 1,0,-1,0,
@@ -269,9 +300,13 @@ SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_lin
             }
         }
     }
-    cout << "solved line energy " << endl;
-    line_energy.makeCompressed();
-    return line_energy;
+    SparseMatrix<double> final_line_energy(cnt,line_energy.cols());
+    for (int k=0; k< line_energy.outerSize(); ++k)
+        for (SparseMatrix<double>::InnerIterator it(line_energy,k); it; ++it)
+            final_line_energy.insert(it.row(), it.col()) = it.value();
+    // cout << "solved line energy " << endl;
+    final_line_energy.makeCompressed();
+    return final_line_energy;
 }
 
 // SparseMatrix<double> energy::line_energy(vector<vector<vector<Line> > > mesh_line,vector<vector<point > > mesh,vector<vector<point > > V,double *bins,int num)

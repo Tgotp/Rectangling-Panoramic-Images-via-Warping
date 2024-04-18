@@ -27,11 +27,15 @@ struct point
         return point(x - a.x,y - a.y);
     }
 
-    bool operator == (point a)
+    double len()
     {
-        return x == a.x && y == a.y;
+        return sqrt(x * x + y * y);
     }
 
+    bool operator == (point a)
+    {
+        return point(x - a.x,y - a.y).len() < 0.00001;
+    }
  
     friend ostream &operator<<( ostream &output ,const point&z)
     { 
